@@ -99,8 +99,8 @@ void init (void) {
 	board_init();
 	sysclk_init();
 	delay_init();
-	SysTick_Config(sysclk_get_cpu_hz() / 1000); // 1 ms
-	gfx_mono_ssd1306_init();
+	//SysTick_Config(sysclk_get_cpu_hz() / 1000); // 1 ms
+	//gfx_mono_ssd1306_init();
 
 	pmc_enable_periph_clk(BUT1_PIO_ID);
 	pmc_enable_periph_clk(BUT2_PIO_ID);
