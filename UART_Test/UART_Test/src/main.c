@@ -54,6 +54,7 @@ volatile char flag_but3 = 0;
 volatile char flag_rtt  = 0;
 volatile char pressed_but = 0;
 volatile char count_but = 0;
+volatile char rtt_pause = 0;
 
 // prototype
 void BUT1_callback(void);
@@ -198,13 +199,15 @@ void play_led3 (int time) {
 
 void start_rtt (void) {
   uint16_t pllPreScale = (int) (((float) 32768) / 4.0);
-  uint32_t irqRTTvalue = 12;
+  uint32_t irqRTTvalue = 6;
 
   // reinicia RTT para gerar um novo IRQ
   RTT_init(pllPreScale, irqRTTvalue);
 
   // reseta flag
   flag_rtt = 0;
+  rtt_pause = 1;
+ 
 }
 
 void pisca_led(int n, int t, Pio *p_pio, const uint32_t ul_mask ){
@@ -273,22 +276,22 @@ volatile char play  = 1;
 int user_play (int seq[], int seq_len) {
 	int i;
 	int correct = 0;
-
-//	while(count_but < 3 ){
+		start_rtt();
 		for(i = 0; i < seq_len; ){
 			if(flag_rtt){
+				i = seq_len;
+				correct = 0;
+				start_rtt();	
 				//erro
-			}
-			
-			if(pressed_but == 1){
+			}else if(pressed_but == 1){
 
 				if(seq[i] == 1 && flag_but1 ){
 					correct += 1;
 				}
-				if(seq[i] == 2 && flag_but2   ){
+				if(seq[i] == 2 && flag_but2  ){
 					correct += 1;
 				}
-				if(seq[i] == 3 && flag_but3   ){
+				if(seq[i] == 3 && flag_but3  ){
 					correct += 1;
 				}
 			
@@ -355,10 +358,9 @@ int main (void) {
 		}
 		pressed_but = 0;
 		flag_but1 = 0 ; flag_but2 = 0; flag_but3 = 0;
-		if (user_play(seq0, seq0_len)) {
-			
-			player_error();
-		} else {
+		if (user_play(seq0, seq0_len)) {			
+			player_error();		
+		}else {
 			player_sucess();
 		}
 	}
